@@ -1,0 +1,107 @@
+<h1 class="text-center"> 각 언어 베스트 셀러</h1>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="java-tab" data-bs-toggle="tab"data-bs-target="#tab-pane" type="button"role="tab" aria-controls="java-tab-pane" aria-selected="true">
+            Java</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="Python-tab" data-bs-toggle="tab"data-bs-target="#tab-pane" type="button"role="tab" aria-controls="Python-tab-pane" aria-selected="true">
+            Python</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="Node-tab" data-bs-toggle="tab"data-bs-target="#tab-pane" type="button"role="tab" aria-controls="Node-tab-pane" aria-selected="true">
+            Node.js</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="React-tab" data-bs-toggle="tab"data-bs-target="#tab-pane" type="button"role="tab" aria-controls="React-tab-pane" aria-selected="true">
+            React</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="HTML-tab" data-bs-toggle="tab"data-bs-target="#tab-pane" type="button"role="tab" aria-controls="HTML-tab-pane" aria-selected="true">
+            HTML</button>
+    </li>
+    
+</ul>
+   <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="tab-pane" role="tabpanel" aria-labelledby="java-tab" tabindex="0">
+            <div id="best_book" class="row my-5"></div>
+        </div>
+   </div>
+
+   <!--베스트 목록 템플릿-->
+<script id="temp_best" type="text/x-handlebars-template">
+    {{# each documents }}
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card my-2">
+                <div class="card-body text-center">
+                    <img src="{{ thumbnail }}" index="{{ @index }}" style="cursor:pointer;width:80%"/>
+                </div>
+            </div>
+            <table class="table">
+                <tr>
+                    <th>책 제목</th>
+                    <th>가격</th>
+                </tr>
+                <tr>
+                    <td>{{title}}</td>
+                    <td>{{fmtPrice price}}</td>
+                </tr>
+            </table>
+        </div>
+    {{/each}}
+</script>
+<script>
+    Handlebars.registerHelper("fmtPrice", function(price){
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "원"
+    });
+
+</script>
+<script>
+    $("#temp_best").on("click","img",function(){
+        $("#modal").modal("show");
+    });
+
+</script>
+<script>
+    let best="java"; 
+    getBest();
+
+    $("#java-tab").on("click", function(){
+        best="java"; 
+        getBest(); 
+    });
+
+    $("#HTML-tab").on("click", function(){
+        best="HTML"; 
+        getBest(); 
+    });
+
+    $("#React-tab").on("click", function(){
+        best="React"; 
+        getBest(); 
+    });
+
+    $("#Python-tab").on("click", function(){
+        best="Python";
+        getBest();
+    }); 
+
+    $("#Node-tab").on("click", function(){
+        best="Node";
+        getBest();
+    });
+
+    function getBest() {
+        $.ajax({
+        type: 'get',
+        url: 'https://dapi.kakao.com/v3/search/book?target=title', 
+        headers: { Authorization:"KakaoAK 101f7a17f872e02b2ae8da8a87b16c1c" }, 
+        data:{ query:best, page:1, size:6 }, 
+        dataType: 'json', 
+        success:function(data) {
+            let temp=Handlebars.compile($("#temp_best").html()); 
+            $("#best_book").html(temp(data)); 
+        }
+    }); 
+}
+</script>

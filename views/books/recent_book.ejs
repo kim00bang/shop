@@ -1,0 +1,48 @@
+<h1 class="text-center">최신 도서 목록</h1>
+<hr>
+<div id="recent_book" class="row"></div>
+
+<!--최신 도서 목록 템플릿-->
+<script id="temp_recent" type="text/x-handlebars-template">
+    {{#each documents}}
+        <div class="col-6 col-md-2 my-5">
+            <div class="card my-2 mx-2">
+                <div class="card-body text-center">
+                    <img src="{{ thumbnail }}">
+                </div>
+            </div>
+            {{title}}
+        </div>
+    {{/each}}
+</script>
+<script>
+
+    $("#temp_recent").on("click","img",function(){
+        $("#modal").modal("show");
+    });
+
+</script>
+<script>
+    getRecent(); 
+    
+    function getRecent() {
+        $.ajax({
+        type: 'get', 
+        url: 'https://dapi.kakao.com/v3/search/book?target=title', 
+        headers: { Authorization:"KakaoAK 101f7a17f872e02b2ae8da8a87b16c1c" }, 
+        data: { query:'챗GPT', page:1, size:10 }, 
+        dataType: 'json', 
+        success:function(data) {
+            let temp=Handlebars.compile($("#temp_recent").html()); $("#recent_book").html(temp(data)); recentSlider(); 
+            }
+        }); 
+    }
+
+    function recentSlider() {
+        $('#recent_book').slick({
+            slidesToShow : 6, 
+            slide : 'div', 
+            infinite : true
+        }); 
+    }
+</script>
