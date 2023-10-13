@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db');
 var multer=require('multer');
-//업로드 함수
+//업로드 함수.
 var upload = multer({
     storage:multer.diskStorage({
         destination:(req, file, done)=>{
