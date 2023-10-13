@@ -1,8 +1,7 @@
 <div class="my-5">
-    <h1 class="text-center">도서 검색</h1>
-    <hr>
+    <h1 class="text-center">도서검색</h1>
     <div class="row justify-content-end">
-        <form name="frm" class="col-md-3 col-lg-3 my-3">
+        <form name="frm" class="col-md-4 col-lg-3">
             <div class="input-group">
                 <input name="query" class="form-control">
                 <button class="btn btn-danger">검색</button>
@@ -16,37 +15,41 @@
         <button id="next" class="btn btn-danger">다음</button>
     </div>
 </div>
-<!-- 도서 검색 템플릿 -->
+<!--도서검색템플릿-->
 <script id="temp_books" type="x-handlebars-template">
-    <table class = "table table-warning table-striped">
+    <table class="table table-warning table-striped">
         <tr>
             <th>책 표지</th>
             <th>책 이름</th>
             <th>책 가격</th>
             <th>책 저자</th>
             <th>출판사</th>
+            <th>도서 저장</th>
         </tr>
         {{#each documents}}
         <tr>
-            <td><img src="{{isImage thumbnail}}" width = "50"></td>
+            <td><img idx="{{@index}}" src="{{isImage thumbnail}}" width="50" style="cursor:pointer;"></td>
             <td>{{title}}</td>
             <td>{{fmtPrice price}}</td>
             <td>{{authors}}</td>
             <td>{{publisher}}</td>
-        </tr>
-        <%-include("modal.ejs")%>
+            <td><button class="btn btn-danger" book="{{toString @this}}">도서저장</button></td>
+        </tr>  
+        <%-include("modal.ejs")%>  
         {{/each}}
-    </table>
+    </table>    
 </script>
 <script>
+    Handlebars.registerHelper("toString", function(book){
+        return JSON.stringify(book);
+    });
     Handlebars.registerHelper("isImage", function(image){
         if(image){
             return image;
-        } else {
+        }else {
             return "http://via.placeholder.com/170x230";
         }
     });
-
     Handlebars.registerHelper("fmtPrice", function(price){
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "원"
     });
@@ -56,31 +59,56 @@
     let page=1;
     getBooks();
 
-    //이미지를 클릭한 경우
-    $("#div_books").on("click","img",function(){
-        $("#modal").modal("show");
+    //도서등록 버튼을 클릭한 경우
+    $("#div_books").on("click", "button", function(){
+        const book=JSON.parse($(this).attr("book"));
+        const title=book.title;
+        const authors=book.authors.join();
+        const thumbnail = book.thumbnail;
+        const contents=book.contents;
+        const publisher=book.publisher;
+        const price=book.price;
+        const isbn=book.isbn;
+        if(confirm("도서를 등록하실래요?")) {
+            $.ajax({
+                type:"post",
+                url:"/books/search/insert",
+                data: {title,authors,thumbnail,contents,publisher,price,isbn},
+                success:function(data){
+                    if(data==0){
+                        alert("도서가 등록되었습니다.");
+                    } else {
+                        alert("이미 등록된 도서 입니다.");
+                    }          
+                }
+            });
+        }
     });
 
-    /*다음 페이지*/
+    //이미지를 클릭한 경우
+    $("#div_books").on("click", "img", function(){
+        const idx = $(this).attr("idx");
+        $("#modal" + idx).modal("show");
+    });
+
     $("#next").on("click", function(){
         page++;
         getBooks();
     });
 
-    /*이전 페이지*/
     $("#prev").on("click", function(){
         page--;
         getBooks();
     });
 
-    $(frm).on("submit", function(e) {
+    $(frm).on("submit", function(e){
         e.preventDefault();
-        query = $(frm.query).val();
+        query=$(frm.query).val();
         page=1;
         if(query==""){
-            alert("검색어를 입력하세요.");
+            alert("검색어를 입력하세요!");
             $(frm.query).focus();
-        } else {
+        }else{
             getBooks();
         }
     });
@@ -88,14 +116,14 @@
     function getBooks(){
         $.ajax({
             type:"get",
-            headers:{"Authorization": "KakaoAK 101f7a17f872e02b2ae8da8a87b16c1c"},
             url:"https://dapi.kakao.com/v3/search/book?target=title",
+            headers:{"Authorization":"KakaoAK 101f7a17f872e02b2ae8da8a87b16c1c"},
             data:{query:query, page:page, size:5},
             success:function(data){
                 console.log(data);
-                const temp = Handlebars.compile($("#temp_books").html());
+                const temp=Handlebars.compile($("#temp_books").html());
                 $("#div_books").html(temp(data));
-                const last = Math.ceil(data.meta.pageable_count/5);
+                const last=Math.ceil(data.meta.pageable_count/5);
                 $("#span_page").html(`${page}/${last}`);
                 //페이지가 1페이지인 경우
                 if(page==1) $("#prev").attr("disabled", true);

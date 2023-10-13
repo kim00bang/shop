@@ -37,28 +37,18 @@
                     <img src="{{ thumbnail }}" index="{{ @index }}" style="cursor:pointer;width:80%"/>
                 </div>
             </div>
-            <table class="table">
-                <tr>
-                    <th>책 제목</th>
-                    <th>가격</th>
-                </tr>
-                <tr>
-                    <td>{{title}}</td>
-                    <td>{{fmtPrice price}}</td>
-                </tr>
-            </table>
+            <div class="card">
+                <h5>책 제목 : {{title}}</h5>
+                <h5>가격 : {{fmtPrice price}}</h5>
+                <h5>저자 : {{authors}}</h5>
+                <h5>출판사 : {{publisher}}</h5>
+            </div>
         </div>
     {{/each}}
 </script>
 <script>
     Handlebars.registerHelper("fmtPrice", function(price){
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "원"
-    });
-
-</script>
-<script>
-    $("#temp_best").on("click","img",function(){
-        $("#modal").modal("show");
     });
 
 </script>

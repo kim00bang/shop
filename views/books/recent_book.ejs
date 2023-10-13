@@ -1,7 +1,7 @@
-<h1 class="text-center">최신 도서 목록</h1>
+<h1 class="text-center bg-warning p-5">최신 도서 목록</h1>
 <hr>
 <div id="recent_book" class="row"></div>
-
+<div id="div_books"></div>
 <!--최신 도서 목록 템플릿-->
 <script id="temp_recent" type="text/x-handlebars-template">
     {{#each documents}}
@@ -11,16 +11,19 @@
                     <img src="{{ thumbnail }}">
                 </div>
             </div>
-            {{title}}
+            <div class="card">
+                <h5>책 제목 : {{title}}</h5>
+                <h5>가격 : {{fmtPrice price}}</h5>
+                <h5>저자 : {{authors}}</h5>
+                <h5>출판사 : {{publisher}}</h5>
+            </div>
         </div>
     {{/each}}
 </script>
 <script>
-
-    $("#temp_recent").on("click","img",function(){
+    $("#div_books").on("click","img",function(){
         $("#modal").modal("show");
     });
-
 </script>
 <script>
     getRecent(); 
@@ -33,7 +36,8 @@
         data: { query:'챗GPT', page:1, size:10 }, 
         dataType: 'json', 
         success:function(data) {
-            let temp=Handlebars.compile($("#temp_recent").html()); $("#recent_book").html(temp(data)); recentSlider(); 
+            let temp=Handlebars.compile($("#temp_recent").html()); 
+            $("#recent_book").html(temp(data)); recentSlider(); 
             }
         }); 
     }

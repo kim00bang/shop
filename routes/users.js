@@ -17,7 +17,7 @@ var upload = multer({
 
 /* 사용자 목록 페이지 */
 router.get('/', function(req, res, next) {
-    res.render("index", {title:"사용자 목록", pageName:"users/list.ejs"})
+    res.render("index", {title:"사용자 목록", pageName:"users/list.ejs"});
 });
 
 //사용자 목록
@@ -89,18 +89,17 @@ router.get('/update', function(req, res){
 });
 
 //정보 수정
-router.post('/update',upload.single('file'), function(req, res){
-    const uid=req.body.uid;
+router.post('/update', upload.single("file"), function(req, res){
     const uname=req.body.uname;
+    const uid=req.body.uid;
     const phone=req.body.phone;
     const address1=req.body.address1;
     const address2=req.body.address2;
     let photo=req.body.photo;
-    if(req.file) photo =req.file.filename;
-    console.log('photo.....', photo);
+    if(req.file) photo=req.file.filename;
     const sql="update users set uname=?,phone=?,address1=?,address2=?,photo=? where uid=?";
-    db.get().query(sql, [uname,phone,address1,address2,photo,uid], function(err, rows){
-        if(err)console.log(err);
+    db.get().query(sql, [uname,phone,address1,address2,photo,uid], function(err,rows){
+        if(err) console.log("sql 오류...", err);
         res.redirect('/users/mypage?uid=' + uid);
     });
 });
