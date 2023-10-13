@@ -1,3 +1,79 @@
 <div class="my-5">
     <h1 class="text-center">노래 검색</h1>
+    <div class="row justify-content-end">
+        <form name="frm" class="col-md-4 col-lg-3">
+            <div class="input-group">
+                <input name="query" class="form-control">
+                <button class="btn btn-danger">검색</button>
+            </div>
+        </form>
+    </div>
+    <div id="div_books"></div>
+    <div class="text-center">
+        <button id="prev" class="btn btn-danger">이전</button>
+        <span id="span_page" class="mx-3">1/10</span>
+        <button id="next" class="btn btn-danger">다음</button>
+    </div>
 </div>
+<script id="temp_music" type="x-handlebars-template">
+    <table class="table table-warning table-striped">
+        <tr>
+            <th>번호</th>
+            <th>앨범 표지</th>
+            <th>앨범</th>
+            <th>노래 제목</th>
+            <th>아티스트</th>
+        </tr>
+        {{#each .}}
+            <tr>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+            </tr>
+        {{/each}}
+    </table>
+</script>
+<script>
+    Handlebars.registerHelper("isImage", function(image){
+        if(image){
+            return image;
+        }else {
+            return "http://via.placeholder.com/170x230";
+        }
+    });
+</script>
+<script>
+    $("#next").on("click", function(){
+        page++;
+        getMusics();
+    });
+
+    $("#prev").on("click", function(){
+        page--;
+        getMusics();
+    });
+
+    function getMusics(){
+        $.ajax({
+            type:"get",
+            url:"https://dapi.kakao.com/v3/search/book?target=title",
+            headers:{"Authorization":"KakaoAK 101f7a17f872e02b2ae8da8a87b16c1c"},
+            data:{query:query, page:page, size:5},
+            success:function(data){
+                console.log(data);
+                const temp=Handlebars.compile($("#temp_books").html());
+                $("#div_books").html(temp(data));
+                const last=Math.ceil(data.meta.pageable_count/5);
+                $("#span_page").html(`${page}/${last}`);
+                //페이지가 1페이지인 경우
+                if(page==1) $("#prev").attr("disabled", true);
+                else $("#prev").attr("disabled", false);
+                //페이지가 마지막인 경우
+                if(data.meta.is_end) $("#next").attr("disabled", true);
+                else $("#next").attr("disabled", false);
+            }
+        });
+    }
+</script>

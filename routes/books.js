@@ -30,4 +30,28 @@ router.post('/search/insert', function(req, res){
 	    }
     });
 });
+
+//도서 목록
+router.get("/list.json", function(req,res){
+	const page=req.query.page;
+	const start=(parseInt(page)-1) * 5;
+	const sql="select * from books order by bid desc limit ?,5";
+	db.get().query(sql, [start], function(err,rows){
+		if(err) console.log("...목록",err);
+		res.send(rows);
+	});
+});
+
+//도서 목록 페이지 이동
+router.get('/list', function(req, res) {
+	res.render('index', {title: '도서 목록', pageName:'books/list.ejs'});
+});
+
+//데이터 갯수
+router.get('/count', function(req, res){
+	const sql="select count(*) total from books";
+	db.get().query(sql, function(err,rows){
+		res.send(rows[0]);
+	});
+});
 module.exports = router;
